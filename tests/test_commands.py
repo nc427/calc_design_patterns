@@ -1,20 +1,62 @@
 import pytest
-from app import App
+from commands import CommandHandler, ConcreteCommand, AnotherCommand, GreetCommand, GoodbyeCommand, ExitCommand, MenuCommand, GenerateLuckyNumbersCommand
 
-@pytest.mark.parametrize("user_inputs, expected_output", [
-    (['greet', 'exit'], "Exiting..."),
-    (['menu', 'exit'], "Exiting..."),
-])
-def test_app_commands(capfd, monkeypatch, user_inputs, expected_output):
-    """Test various commands in the REPL."""
-    inputs = iter(user_inputs)
-    monkeypatch.setattr('builtins.input', lambda _: next(inputs))
+@pytest.fixture
+def command_handler():
+    handler = CommandHandler()
+    handler.register_command("concrete", ConcreteCommand())
+    handler.register_command("another", AnotherCommand())
+    handler.register_command("greet", GreetCommand())
+    handler.register_command("goodbye", GoodbyeCommand())
+    handler.register_command("exit", ExitCommand())
+    handler.register_command("menu", MenuCommand({"1": ConcreteCommand, "2": AnotherCommand}))
+    handler.register_command("generate_lucky_numbers", GenerateLuckyNumbersCommand())
+    return handler
 
-    app = App()
-    with pytest.raises(SystemExit) as e:
-        app.start()  # Assuming App.start() is now a static method based on previous discussions
-    
-    assert str(e.value) == expected_output, "The app did not exit as expected"
-
+def test_execute_concrete_command(capfd, command_handler):
+    command_handler.execute_command("concrete")
     captured = capfd.readouterr()
-    assert expected_output in captured.out, f"Expected output not found in captured output for commands: {user_inputs}"
+    assert "Executing ConcreteCommand" in captured.out
+
+def test_execute_another_command(capfd, command_handler):
+    command_handler.execute_command("another")
+    captured = capfd.readouterr()
+    assert "Executing AnotherCommand" in captured.out
+
+def test_execute_greet_command(capfd, command_handler):
+    command_handler.execute_command("greet")
+    captured = capfd.readouterr()
+    assert "Hello! Welcome to the command example." in captured.out
+
+def test_execute_goodbye_command(capfd, command_handler):
+    command_handler.execute_command("goodbye")
+    captured = capfd.readouterr()
+    assert "Goodbye! Have a great day." in captured.out
+
+def test_execute_exit_command(capfd, command_handler):
+    with pytest.raises(SystemExit):
+        command_handler.execute_command("exit")
+
+def test_execute_menu_command_choice_1(capfd, monkeypatch, command_handler):
+    monkeypatch.setattr('builtins.input', lambda _: "1")
+    command_handler.execute_command("menu")
+    captured = capfd.readouterr()
+    assert "Executing ConcreteCommand" in captured.out
+
+def test_execute_menu_command_choice_2(capfd, monkeypatch, command_handler):
+    monkeypatch.setattr('builtins.input', lambda _: "2")
+    command_handler.execute_command("menu")
+    captured = capfd.readouterr()
+    assert "Executing AnotherCommand" in captured.out
+
+def test_execute_menu_command_invalid_choice(capfd, monkeypatch, command_handler):
+    monkeypatch.setattr('builtins.input', lambda _: "invalid_choice")
+    command_handler.execute_command("menu")
+    captured = capfd.readouterr()
+    assert "Invalid choice. Please enter a valid option." in captured.out
+
+def test_execute_generate_lucky_numbers_command(capfd, command_handler):
+    command_handler.execute_command("generate_lucky_numbers")
+    captured = capfd.readouterr()
+    assert "Your lucky numbers are:" in captured.out
+

@@ -8,6 +8,6 @@ def test_app_start_exit_command(capfd, monkeypatch):
     app = App()
     with pytest.raises(SystemExit) as e:
         app.start()
-    
+
     assert e.type == SystemExit
-    assert e.value.code == 0  # Assuming exit code 0 for a clean exit
+    assert e.value.args[0] == 'Exiting...'  # Check the exit message

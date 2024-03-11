@@ -1,7 +1,7 @@
 import sys
 from app.commands import Command
 
-
 class ExitCommand(Command):
     def execute(self):
-        sys.exit("Exiting...")
+        print("Exiting from the ExitCommandPlugin!")
+        exit()

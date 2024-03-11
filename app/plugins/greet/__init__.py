@@ -1,6 +1,7 @@
-from app.commands import Command
+# app/plugins/greet_plugin.py
 
+from app.commands import Command
 
 class GreetCommand(Command):
     def execute(self):
-        print("Hello, World!")
+        print("Hello from the GreetCommandPlugin!")
