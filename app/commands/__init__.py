@@ -13,14 +13,53 @@ class CommandHandler:
         self.commands[command_name] = command
 
     def execute_command(self, command_name: str):
-        """ Look before you leap (LBYL) - Use when its less likely to work
-        if command_name in self.commands:
-            self.commands[command_name].execute()
-        else:
-            print(f"No such command: {command_name}")
-        """
-        """Easier to ask for forgiveness than permission (EAFP) - Use when its going to most likely work"""
         try:
             self.commands[command_name].execute()
         except KeyError:
             print(f"No such command: {command_name}")
+
+# Concrete Command Implementations
+
+class ConcreteCommand(Command):
+    def execute(self):
+        print("Executing ConcreteCommand")
+
+class AnotherCommand(Command):
+    def execute(self):
+        print("Executing AnotherCommand")
+
+class GreetCommand(Command):
+    def execute(self):
+        print("Hello! Welcome to the command example.")
+
+class GoodbyeCommand(Command):
+    def execute(self):
+        print("Goodbye! Have a great day.")
+
+class ExitCommand(Command):
+    def execute(self):
+        print("Exiting the program.")
+        exit()
+
+class MenuCommand(Command):
+    def __init__(self, command_mapping):
+        self.command_mapping = command_mapping
+
+    def execute(self):
+        print("Menu:")
+        for key, value in self.command_mapping.items():
+            print(f"{key}. {value.__name__}")
+
+        choice = input("Enter your choice: ")
+
+        try:
+            chosen_command = self.command_mapping[choice]
+            chosen_command().execute()
+        except KeyError:
+            print("Invalid choice. Please enter a valid option.")
+
+class GenerateLuckyNumbersCommand(Command):
+    def execute(self):
+        import random
+        lucky_numbers = [random.randint(1, 100) for _ in range(3)]
+        print(f"Your lucky numbers are: {lucky_numbers}")

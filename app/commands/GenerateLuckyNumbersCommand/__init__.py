@@ -1,4 +1,3 @@
-# generate_lucky_numbers_command.py
 from abc import ABC, abstractmethod
 import random
 
